@@ -1,8 +1,14 @@
-# Say This Today v3
+# Say This Today v4
 
 A tiny installable daily conversation starter app.
 
-## What is new in v3
+## What is new in v4
+
+- Category buttons now use one permanent click listener on the filter container.
+- Added visible selected-category text under the filter buttons.
+- Bumped the offline cache to v4.
+
+## What was new in v3
 
 - Fixed Browse category buttons.
 - Category filtering now uses safe data attributes instead of fragile inline onclick values.
