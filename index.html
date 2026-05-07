@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#234898" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Say This Today" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="description" content="One daily conversation starter for people who like people, but never know how to start." />
+
+  <title>Say This Today</title>
+
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+
+  <style>
+    :root {
+      --bg: #f7f1e8;
+      --bg-2: #efe4d3;
+      --card: rgba(255, 250, 242, 0.9);
+      --text: #1e1e1e;
+      --muted: #665f57;
+      --accent: #234898;
+      --accent-2: #20aae3;
+      --border: rgba(30, 30, 30, 0.1);
+      --shadow: 0 24px 70px rgba(31, 31, 31, 0.12);
+      --radius: 32px;
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      min-height: 100dvh;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 10% 8%, rgba(32, 170, 227, 0.24), transparent 28%),
+        radial-gradient(circle at 90% 12%, rgba(230, 61, 34, 0.13), transparent 24%),
+        radial-gradient(circle at 60% 100%, rgba(35, 72, 152, 0.18), transparent 36%),
+        linear-gradient(135deg, var(--bg), var(--bg-2));
+      display: grid;
+      place-items: center;
+      padding: max(18px, env(safe-area-inset-top)) 18px max(18px, env(safe-area-inset-bottom));
+    }
+
+    .page {
+      width: min(920px, 100%);
+    }
+
+    .hero {
+      text-align: center;
+      margin: 0 auto 24px;
+      max-width: 760px;
+    }
+
+    .kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.42);
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 850;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(43px, 10vw, 92px);
+      line-height: 0.9;
+      letter-spacing: -0.075em;
+    }
+
+    .tagline {
+      margin: 18px auto 0;
+      max-width: 640px;
+      color: var(--muted);
+      font-size: clamp(17px, 2.3vw, 21px);
+      line-height: 1.5;
+    }
+
+    .card {
+      position: relative;
+      overflow: hidden;
+      border-radius: var(--radius);
+      background: var(--card);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(20px);
+      padding: clamp(24px, 5vw, 44px);
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(135deg, rgba(255,255,255,0.52), transparent 28%),
+        radial-gradient(circle at top right, rgba(32, 170, 227, 0.13), transparent 30%);
+    }
+
+    .card > * { position: relative; }
+
+    .top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 25px;
+    }
+
+    .date {
+      color: var(--muted);
+      font-size: 15px;
+      font-weight: 750;
+    }
+
+    .pill {
+      color: var(--accent);
+      background: rgba(35, 72, 152, 0.09);
+      border: 1px solid rgba(35, 72, 152, 0.08);
+      border-radius: 999px;
+      padding: 9px 13px;
+      font-size: 13px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .line {
+      margin: 0;
+      max-width: 800px;
+      font-size: clamp(31px, 5.3vw, 58px);
+      line-height: 1.04;
+      letter-spacing: -0.055em;
+      font-weight: 920;
+    }
+
+    .details {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-top: 34px;
+    }
+
+    .detail {
+      border-top: 1px solid var(--border);
+      padding-top: 18px;
+    }
+
+    .label {
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 950;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 8px;
+    }
+
+    .detail p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.55;
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 12px;
+      margin-top: 30px;
+    }
+
+    button {
+      appearance: none;
+      border: 0;
+      cursor: pointer;
+      border-radius: 20px;
+      padding: 16px 18px;
+      font-size: 15px;
+      font-weight: 900;
+      transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+    }
+
+    button:hover { transform: translateY(-1px); }
+    button:active { transform: translateY(0); }
+
+    .primary {
+      color: white;
+      background: var(--accent);
+      box-shadow: 0 14px 30px rgba(35, 72, 152, 0.22);
+    }
+
+    .secondary {
+      color: var(--text);
+      background: rgba(30, 30, 30, 0.065);
+    }
+
+    .nav {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 18px;
+      flex-wrap: wrap;
+    }
+
+    .nav button {
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.48);
+      padding: 12px 14px;
+      border-radius: 999px;
+      font-size: 14px;
+    }
+
+    .install-tip {
+      display: none;
+      margin-top: 18px;
+      padding: 14px 16px;
+      border-radius: 18px;
+      border: 1px solid rgba(35, 72, 152, 0.12);
+      background: rgba(255, 255, 255, 0.46);
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.45;
+      text-align: center;
+    }
+
+    .install-tip strong { color: var(--accent); }
+
+    .toast {
+      min-height: 22px;
+      text-align: center;
+      color: var(--accent);
+      font-weight: 900;
+      margin-top: 16px;
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity 0.18s ease, transform 0.18s ease;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+      margin-top: 22px;
+    }
+
+    @media (max-width: 760px) {
+      body { align-items: start; }
+      .hero { margin-top: 10px; }
+      .top-row { align-items: flex-start; flex-direction: column; }
+      .details { grid-template-columns: 1fr; gap: 20px; }
+      .actions { grid-template-columns: 1fr; }
+      .install-tip { display: block; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="hero">
+      <div class="kicker">One daily line</div>
+      <h1>Say This Today</h1>
+      <p class="tagline">For people who like people, but never know how to start.</p>
+    </header>
+
+    <section class="card" aria-live="polite">
+      <div class="top-row">
+        <div class="date" id="dateText">Today</div>
+        <div class="pill" id="categoryText">Daily opener</div>
+      </div>
+
+      <p class="line" id="starterText">Loading...</p>
+
+      <div class="details">
+        <div class="detail">
+          <div class="label">Where to use it</div>
+          <p id="whereText"></p>
+        </div>
+        <div class="detail">
+          <div class="label">Why it works</div>
+          <p id="whyText"></p>
+        </div>
+        <div class="detail">
+          <div class="label">Easy follow-up</div>
+          <p id="followText"></p>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="primary" type="button" onclick="copyStarter()">Copy today’s line</button>
+        <button class="secondary" type="button" onclick="toggleFavorite()" id="favoriteBtn">Save favourite</button>
+      </div>
+
+      <div class="nav">
+        <button type="button" onclick="changeDay(-1)">← Yesterday</button>
+        <button type="button" onclick="goToday()">Today</button>
+        <button type="button" onclick="changeDay(1)">Tomorrow →</button>
+      </div>
+
+      <div class="install-tip">
+        <strong>Add it to your phone:</strong> open this page in Safari or Chrome, tap Share/Menu, then choose <strong>Add to Home Screen</strong>.
+      </div>
+
+      <div class="toast" id="toast"></div>
+    </section>
+
+    <p class="footer">No login. No feed. No pressure. Just one small way into the room.</p>
+  </main>
+
+  <script>
+    const batchBlueprints = [
+  {
+    "name": "Coffee, queues, elevators, weather",
+    "count": 50,
+    "where": "Coffee queues, elevators, office lobbies, cafés, shops, and everyday waiting moments.",
+    "why": "It starts with something both of you are already experiencing, so it feels natural rather than forced.",
+    "followups": [
+      "Have you been here before?",
+      "Is it usually this busy?",
+      "Are you a regular here?",
+      "Are you going for your usual or trying something new?",
+      "Is this queue a good sign?"
+    ],
+    "lines": [
+      "This queue is either a warning or a very good recommendation.",
+      "I trust a place more when people are willing to wait for it.",
+      "The smell here is doing half the marketing by itself.",
+      "This queue has given me enough time to become emotionally attached to my order.",
+      "I always admire people who know what they want before they reach the counter.",
+      "I came in confident, then the menu got involved.",
+      "There should be a separate queue for people still negotiating with themselves.",
+      "The longer I wait, the more dramatic my coffee choice becomes.",
+      "This place smells like it knows what it is doing.",
+      "I respect a coffee shop that makes the queue feel worth it.",
+      "I always rehearse my order and then say something completely different.",
+      "Morning coffee has too much responsibility for one drink.",
+      "This is exactly the kind of queue where you start reading the menu like a legal document.",
+      "I like a queue where nobody leaves. It feels reassuring.",
+      "The person ordering confidently at the front is living the dream.",
+      "I never know whether elevator silence is peaceful or slightly suspicious.",
+      "Elevators make everyone suddenly very interested in the floor numbers.",
+      "There is no natural way to stand in an elevator. We all just do our best.",
+      "The little pause before the elevator doors close always feels personal.",
+      "I respect how everyone becomes very professional in an elevator.",
+      "Elevators are tiny rooms where phones do a lot of emotional support work.",
+      "The elevator mirror always catches people in their most serious face.",
+      "Every elevator ride has one second where everyone forgets how to behave.",
+      "This elevator has the atmosphere of a very short meeting.",
+      "I always forget whether to say something in elevators or just become furniture.",
+      "This weather feels like it changed its mind halfway through the day.",
+      "I dressed for a different version of today.",
+      "The weather is giving mixed instructions.",
+      "This is very much a ‘carry a jacket and regret it’ kind of day.",
+      "The sky looks like it still has not committed to a plan.",
+      "Today’s weather feels like a group project where nobody agreed.",
+      "This weather is testing everyone’s outfit decisions.",
+      "I never know whether to trust a sunny morning anymore.",
+      "This is suspiciously dramatic weather for a normal day.",
+      "I feel like the weather owes everyone a clearer brief.",
+      "Waiting in line really reveals everyone’s phone-checking style.",
+      "A slow queue turns strangers into a temporary society.",
+      "There is always one person in a queue who understands the whole system.",
+      "I picked this line with great confidence, which means it will probably betray me.",
+      "Choosing the right queue is basically gambling, but with snacks.",
+      "The moment you change lines, the old line immediately starts moving.",
+      "I am emotionally committed to this queue now.",
+      "Every queue has one person who somehow looks relaxed. I admire that.",
+      "This line is moving at the exact speed of mild reflection.",
+      "A queue is just free time with witnesses.",
+      "I like when a place is busy but nobody looks angry. That is a good sign.",
+      "This is the part where I pretend I was not reading everyone’s order.",
+      "There is always someone who reaches the counter and discovers the menu for the first time.",
+      "Queues are where patience and hunger negotiate.",
+      "I think this place won me over before I even ordered."
+    ]
+  },
+  {
+    "name": "Work and office",
+    "count": 50,
+    "where": "Office kitchens, coworking spaces, meeting rooms, desk areas, and workday breaks.",
+    "why": "It is work-safe, light, and gives the other person an easy way to answer without feeling cornered.",
+    "followups": [
+      "Is this your first coffee or emergency coffee?",
+      "How is your day looking?",
+      "Heavy meeting day?",
+      "Is this a calm week or one of those weeks?",
+      "Do you get proper breaks or theoretical breaks?"
+    ],
+    "lines": [
+      "The coffee machine is the real meeting room.",
+      "The office kitchen tells you more than most company updates.",
+      "This is where everyone comes to reboot for five minutes.",
+      "The coffee machine has too much responsibility for one appliance.",
+      "I came here for coffee and accidentally rejoined society.",
+      "The best work conversations always happen when nobody scheduled them.",
+      "Office snacks are basically workplace diplomacy.",
+      "A good five-minute chat can do more than another productivity tool.",
+      "This room has strong ‘reset your brain’ energy.",
+      "The kitchen is where company culture either exists or does not.",
+      "Meetings should come with a coffee difficulty rating.",
+      "There should be a calendar status called ‘recovering from the previous meeting.’",
+      "The phrase ‘quick question’ has done serious damage to calendars.",
+      "Ending a meeting early should be considered leadership.",
+      "The best meeting is the one that becomes shorter while still making sense.",
+      "I respect people who make meetings useful without making it their whole personality.",
+      "The most powerful sentence at work is still ‘we probably do not need a meeting for this.’",
+      "Nothing builds team spirit like fixing a screen together.",
+      "‘Can you see my screen?’ may be the phrase that defines our era.",
+      "Every video call has that tiny suspense before someone unmutes.",
+      "I think half of work is just finding the right tab again.",
+      "I opened this tab with purpose. That purpose has now left the building.",
+      "Inbox zero feels less like a method and more like folklore.",
+      "Some emails arrive with the energy of a small fire alarm.",
+      "The number of tabs I have open is between me and my conscience.",
+      "A clean desktop is impressive, but I do not fully trust it.",
+      "The afternoon slump should be recognised as an official weather condition.",
+      "I am not tired. I am just temporarily powered by tabs and coffee.",
+      "The 4 p.m. silence in an office has a very specific sound.",
+      "A good chair can change your opinion of an entire day.",
+      "Every office has one chair everyone secretly knows is the best chair.",
+      "There is always one meeting room with a personality problem.",
+      "I respect any meeting room where the screen works the first time.",
+      "Office plants always look like they know company secrets.",
+      "There is always someone who knows where everything is kept. That person is powerful.",
+      "Remembering names after one introduction is a superpower.",
+      "The office wave is a delicate social instrument.",
+      "I always forget whether I have already said hello to someone today.",
+      "The best colleagues make work feel less mechanical.",
+      "Sometimes the nicest part of the day is one normal human conversation.",
+      "A proper break feels illegal when the calendar is full.",
+      "The calendar looks confident. I do not.",
+      "I like when a workday leaves space for one unscheduled thought.",
+      "The printer remains the final boss of office life.",
+      "Every workplace has one object nobody knows how to replace.",
+      "A shared snack table can heal more tension than a long email.",
+      "The real office status symbol is knowing which mug is yours.",
+      "Office coffee is not always good, but it is emotionally important.",
+      "I came here for a drink and got a small software update for my mood.",
+      "A workday feels better after one conversation that is not about work."
+    ]
+  },
+  {
+    "name": "Events and conferences",
+    "count": 50,
+    "where": "Conferences, networking breaks, registration desks, lounges, coffee areas, and business meetups.",
+    "why": "It avoids the usual networking script and makes it easier to start a normal conversation.",
+    "followups": [
+      "What brought you here today?",
+      "Have you been to this event before?",
+      "Any session you are curious about?",
+      "Have you met anyone interesting so far?",
+      "Are you here more for learning, meetings, or both?"
+    ],
+    "lines": [
+      "I’m trying not to open every conversation with ‘so what do you do?’ but it keeps trying to escape.",
+      "The coffee break is secretly the main agenda item.",
+      "I have reached the stage where faces are familiar but names are ambitious.",
+      "Event badges are useful, but pretending not to stare at them is a skill.",
+      "Networking sounds terrible until it accidentally becomes a normal conversation.",
+      "The best conversations at events usually start near the coffee.",
+      "I am doing the classic event walk: moving with purpose while deciding where to go.",
+      "Every event has one person who seems to know everyone.",
+      "There is an art to looking approachable without looking lost.",
+      "The first lap around an event floor is mostly reconnaissance.",
+      "I like events where people actually talk instead of just collecting badges.",
+      "This feels like the part of the day where the useful conversations start.",
+      "The hallway after a good session is often better than the session.",
+      "A good event gives you at least one conversation you did not expect.",
+      "I came for the agenda, but hallway conversations may win.",
+      "Panels are better when someone says something specific enough to disagree with.",
+      "The best question is usually the one everyone else was too polite to ask.",
+      "I like speakers who sound like they still live in the real world.",
+      "You can feel when a room is useful, not just crowded.",
+      "A busy room is nice. A useful room is better.",
+      "Finding the right room at an event is basically a team sport.",
+      "Conference maps always make me more lost before they help.",
+      "The badge lanyard is doing a lot of identity work today.",
+      "There is no elegant way to network while eating tiny food.",
+      "I respect anyone who can hold a plate, a drink, and a conversation.",
+      "The event lunch table is randomised networking software.",
+      "Canapés and business cards are a risky combination.",
+      "The real skill at events is ending conversations gracefully.",
+      "I am collecting useful conversations today, not just tote bags.",
+      "Though, to be fair, the tote bags help.",
+      "Every event has one booth that becomes the unofficial meeting point.",
+      "The busiest booth always makes everyone curious, even if nobody knows why.",
+      "I like watching which conversations survive after the pitch ends.",
+      "The good part is when the scripted bit gives way to the real bit.",
+      "It is nice when an event feels big enough to matter but small enough to meet people.",
+      "I am trying to meet people without becoming a LinkedIn notification.",
+      "This room has a lot of serious shoes and full calendars.",
+      "Professional events are funny. Everyone is relaxed in a very scheduled way.",
+      "The first conversation is just the warm-up round.",
+      "Once the first hello is out of the way, the whole room feels easier.",
+      "I think every event should provide one official icebreaker that is not embarrassing.",
+      "Badge scanners make every conversation feel slightly official.",
+      "Registration desks have the energy of airport check-in with better branding.",
+      "I always appreciate an event where the coffee is not treated as an afterthought.",
+      "A good coffee break can save a mediocre morning.",
+      "I like when people at events are direct without immediately pitching.",
+      "The best event follow-up is when you actually remember why you met.",
+      "A useful conversation beats a stack of business cards every time.",
+      "I like when the conversation starts with the event and then becomes about something real.",
+      "This is exactly the kind of room where one good introduction can change the day."
+    ]
+  },
+  {
+    "name": "Travel, hotels, airports",
+    "count": 50,
+    "where": "Airports, train stations, hotel lobbies, boarding lines, taxis, and travel waiting areas.",
+    "why": "Travel gives both people an obvious shared context, so the opener does not feel random.",
+    "followups": [
+      "Is this the start of the trip or the way back?",
+      "Are you heading somewhere good?",
+      "Has the journey been smooth so far?",
+      "Are you travelling for work or something more fun?",
+      "Have you been here before?"
+    ],
+    "lines": [
+      "Airports make everyone look like they are in the middle of a side quest.",
+      "Every airport has one gate that feels further away than the destination.",
+      "Airport coffee tastes different because it knows you have fewer options.",
+      "The airport makes a sandwich feel like a financial decision.",
+      "I respect people who travel with one small bag. That is elite behaviour.",
+      "The overhead bin is where society reveals itself.",
+      "Gate changes are how airports remind us who is in charge.",
+      "Boarding groups create more emotion than they probably should.",
+      "Everyone becomes very alert when the gate agent touches the microphone.",
+      "There is a strange unity in everyone pretending not to hear a delay announcement.",
+      "Travel days are just normal days with more cables.",
+      "I always bring too many chargers and still feel underprepared.",
+      "Nothing makes you feel alive like thinking you lost your passport for three seconds.",
+      "I check my pocket for my passport like it might leave on its own.",
+      "Airports are the only place where running looks both normal and tragic.",
+      "The moving walkway briefly makes everyone feel futuristic.",
+      "Train stations have a very specific kind of suspense.",
+      "I admire people who understand train platforms immediately.",
+      "Every station has one sign that seems designed to humble visitors.",
+      "I always trust locals who move through stations without looking up.",
+      "Arriving in a new city is confidence plus Google Maps.",
+      "The first walk in a new city always feels like a trailer for the trip.",
+      "Every city has one smell that announces you have arrived.",
+      "Travel makes ordinary things feel slightly cinematic.",
+      "Getting lost is annoying until it becomes the story later.",
+      "I always pretend I meant to take the scenic route.",
+      "Hotel check-in has the energy of asking permission to stop being tired.",
+      "Hotel lobbies are living rooms for people between versions of themselves.",
+      "The hotel lobby tells you very quickly what kind of trip this wants to be.",
+      "I like hotel lobbies where people actually sit instead of just pass through.",
+      "Hotel breakfast reveals a lot about humanity.",
+      "There is always one person at hotel breakfast having a very strategic morning.",
+      "The hotel coffee machine turns strangers into temporary colleagues.",
+      "I judge hotels unfairly but confidently by their breakfast bread.",
+      "Travel makes buying water feel like a tactical decision.",
+      "A good taxi driver becomes the unofficial welcome committee of a city.",
+      "Suitcases make everyone sound more important than they are.",
+      "There is something hopeful about people waiting with luggage.",
+      "A delayed journey tests how philosophical you are willing to be.",
+      "The best part of travel is when the waiting finally becomes going.",
+      "Every trip has one small chaos tax. I am waiting to see what mine is.",
+      "Travel days make you appreciate chairs very sincerely.",
+      "I like places where everyone is briefly from somewhere else.",
+      "The baggage carousel is a trust exercise with fluorescent lighting.",
+      "Everyone watches the luggage belt like it might reveal their future.",
+      "There is no calm way to wait for a suitcase that looks like everyone else’s.",
+      "The first person to get their bag always looks chosen.",
+      "A delayed bag teaches patience with unnecessary drama.",
+      "Travel makes time feel both too slow and too fast.",
+      "The best travel skill is staying polite while mildly confused."
+    ]
+  },
+  {
+    "name": "Food, restaurants, bars",
+    "count": 50,
+    "where": "Restaurants, bars, bakeries, food trucks, markets, lunch counters, and dinner queues.",
+    "why": "Food is easy to answer because people can respond with a preference, a recommendation, or a small opinion.",
+    "followups": [
+      "Have you tried this place before?",
+      "Do you already know what you are getting?",
+      "Anything here you would recommend?",
+      "Are you more of a starter person or dessert person?",
+      "Did you come here for something specific?"
+    ],
+    "lines": [
+      "This menu is giving me too many ways to make the wrong decision.",
+      "I came in confident and then the menu humbled me.",
+      "Menus with too many good options are a real test of character.",
+      "I always respect people who know what they want before the waiter arrives.",
+      "I am pretending to read the menu, but mostly I am negotiating with myself.",
+      "Food always looks better when someone else ordered it.",
+      "The table next to us accidentally became my menu consultant.",
+      "I have strong opinions about dishes I have not tried yet.",
+      "The specials board always makes me feel I should be more adventurous.",
+      "There is always one dish on a menu that feels like a dare.",
+      "A good bakery queue is one of society’s most reliable signals.",
+      "The smell of fresh bread is unfair marketing.",
+      "Bakeries make patience feel reasonable.",
+      "I respect a place where the pastry section causes silence.",
+      "This looks like the kind of place where people have a usual.",
+      "I always envy people who can order at bars without scanning the whole room first.",
+      "Bars make everyone pretend they are more decisive than they are.",
+      "The first sip tells you whether the day is improving.",
+      "A good bartender can make a place feel like it has a plot.",
+      "This place has strong ‘one more drink’ energy.",
+      "The best restaurants have at least one table laughing too loudly in a good way.",
+      "You can tell a place is good when people stop talking for the first bite.",
+      "I like restaurants where the staff move like they know the choreography.",
+      "The sound of a busy restaurant is weirdly comforting.",
+      "A full restaurant makes you feel clever, even if you just followed the crowd.",
+      "I am trying to order something new and not betray my usual self.",
+      "Choosing dessert is easier when everyone admits they want it.",
+      "Dessert menus reveal who is honest with themselves.",
+      "There is no such thing as ‘just looking’ at dessert.",
+      "Sharing food is lovely until the best piece becomes political.",
+      "Tapas are proof that ordering too much can be called culture.",
+      "A market is basically a restaurant that has not decided where to seat you.",
+      "Food markets make me believe I can make six good decisions in a row.",
+      "Street food tastes better when you have to stand slightly awkwardly.",
+      "The best food sometimes comes with the least comfortable seating.",
+      "If a place has paper napkins and a queue, I pay attention.",
+      "Lunch decisions carry more emotional weight than they should.",
+      "The right sandwich can turn a day around more than people admit.",
+      "I respect places with short menus. It feels like confidence.",
+      "A tiny menu says, ‘we know why you are here.’ I like that.",
+      "The bread basket is the opening act, but sometimes it steals the show.",
+      "Good lighting makes a restaurant feel like everyone made better decisions.",
+      "The best table is always the one you notice after sitting down.",
+      "I judge a place by how happy people look when their food arrives.",
+      "Food is the easiest topic because everyone is suddenly an expert.",
+      "The risky part of eating out is seeing someone else’s plate after you ordered.",
+      "I always choose my meal, then immediately start emotionally cheating with another option.",
+      "Good fries can save a weak main character.",
+      "The dessert spoon is where people stop pretending they are full.",
+      "A good meal makes the whole day seem better planned."
+    ]
+  },
+  {
+    "name": "Neighbourhood and public spaces",
+    "count": 50,
+    "where": "Neighbourhood streets, parks, shops, school gates, building entrances, markets, and public squares.",
+    "why": "It begins with the place around you, which makes the comment feel grounded and easy to answer.",
+    "followups": [
+      "Do you know this area well?",
+      "Has this place changed much?",
+      "Any nearby place you recommend?",
+      "Are you from around here?",
+      "Is this usually a busy spot?"
+    ],
+    "lines": [
+      "This area has a very specific energy. I am still deciding what to call it.",
+      "This street feels like it has its own schedule.",
+      "I like places where people actually stop instead of just pass through.",
+      "This corner looks like it has seen a lot of small dramas.",
+      "Every neighbourhood has one spot that quietly becomes the centre of everything.",
+      "This place feels local in a way you cannot fake.",
+      "I like when a street has personality without trying too hard.",
+      "This area has excellent people-watching conditions.",
+      "Some streets make you slow down without asking.",
+      "This neighbourhood feels like it knows exactly what it is.",
+      "Parks are funny because everyone comes here to do a different version of nothing.",
+      "A park bench is public furniture with philosophical potential.",
+      "There is always one dog in a park doing all the community work.",
+      "Dogs are professional icebreakers. Humans are just catching up.",
+      "This park has strong ‘pretend to read while people-watching’ energy.",
+      "A good square makes people look like they belong to the city for a minute.",
+      "Public squares are where a city checks in with itself.",
+      "This plaza has strong ‘meet me there’ energy.",
+      "I like places where older people sit confidently. That is usually a good sign.",
+      "If the benches are full, the place is probably doing something right.",
+      "Markets make a neighbourhood feel awake.",
+      "A good market makes errands feel more romantic than they are.",
+      "I admire people who shop at markets like they have a plan.",
+      "The best market stalls always seem to have the least dramatic signs.",
+      "This is the kind of place where you accidentally buy three things.",
+      "Local shops make chain stores feel emotionally empty.",
+      "I like shops where the owner clearly knows everyone’s business but politely pretends not to.",
+      "Every neighbourhood has one shop that somehow survives everything.",
+      "A good corner shop is basically infrastructure.",
+      "This place feels like it would give better directions than Google Maps.",
+      "Building entrances have more personality than people admit.",
+      "There is always one neighbour who knows the building’s entire history.",
+      "I like buildings where people actually say hello. It changes the mood.",
+      "The tiny hello at the door is underrated social technology.",
+      "Every building has one person who makes it feel more human.",
+      "School gates have the energy of organised chaos with snacks.",
+      "Parents waiting outside school all have the same tired radar.",
+      "The school pickup crowd is its own temporary society.",
+      "Nothing moves faster than a parent with five minutes before the next thing.",
+      "The after-school snack economy is very real.",
+      "This street has a good walking pace.",
+      "Some places make walking feel like an activity, not just transport.",
+      "I like when a city gives you small reasons to look up.",
+      "Balconies are a neighbourhood’s facial expressions.",
+      "The best streets have something happening, but not too much happening.",
+      "This place feels better at this time of day.",
+      "Morning and evening completely change a neighbourhood’s personality.",
+      "One good café can change a whole street.",
+      "A neighbourhood is basically a collection of tiny habits people agree on.",
+      "This feels like a place where people have routines, and I like that."
+    ]
+  },
+  {
+    "name": "Slightly funny but safe",
+    "count": 65,
+    "where": "Almost anywhere casual: queues, lifts, cafés, offices, events, shops, lobbies, and waiting areas.",
+    "why": "It gives the moment a small smile without asking for anything too personal.",
+    "followups": [
+      "Does that happen to you too?",
+      "Am I the only one who thinks that?",
+      "Is this a normal amount of chaos?",
+      "Would you agree or am I overthinking it?",
+      "Have you noticed that as well?"
+    ],
+    "lines": [
+      "I am trying to look casual, which is usually when I look least casual.",
+      "This is one of those moments where everyone pretends they know the system.",
+      "I admire people who seem naturally relaxed in public. Suspicious talent.",
+      "There should be a manual for how to stand while waiting.",
+      "I am currently doing the socially acceptable version of loitering.",
+      "Small talk is strange because everyone knows it is small, but it still matters.",
+      "I am not impatient. I am just very aware of time as a concept.",
+      "Waiting makes everyone become a philosopher against their will.",
+      "This is the exact situation where phones become emotional support devices.",
+      "Everyone checks their phone to prove they are not just standing there.",
+      "The phone is doing a lot of public confidence work today.",
+      "I arrived with nothing prepared to say, which is brave in its own way.",
+      "There is a fine line between standing confidently and being in the way.",
+      "I choose a place to stand and immediately question the decision.",
+      "I respect anyone who can enter a room and instantly know where to go.",
+      "Walking with purpose while lost is one of my strongest skills.",
+      "I am currently navigating by vibes and mild concern.",
+      "People who look confused but keep moving are basically leaders.",
+      "Every public space has one invisible rule everyone else seems to know.",
+      "I always discover the obvious sign immediately after asking where something is.",
+      "Signs are most visible right after you no longer need them.",
+      "I have a talent for choosing the slowest line with confidence.",
+      "The line I pick always becomes a social experiment.",
+      "There is always one queue moving suspiciously faster than yours.",
+      "Choosing a queue is the closest I get to gambling.",
+      "I am emotionally committed to this line now, even if it betrays me.",
+      "Some people have queue instinct. I was not given that gift.",
+      "I admire people who ask simple questions without turning them into a speech.",
+      "My brain writes a full email before asking a normal question.",
+      "I rehearse tiny sentences and then say a completely different one.",
+      "That sounded better in my head, where it had better lighting.",
+      "My social confidence loads slowly, like old software.",
+      "Some days my personality arrives three minutes after I do.",
+      "I am friendly, but with a short delay.",
+      "My social battery has percentages, but no visible indicator.",
+      "I like people. I just need a soft launch into conversation.",
+      "The first hello is the hardest part. After that, I can pretend I had a plan.",
+      "A good conversation is just one brave sentence that survived.",
+      "I admire people who make ordinary comments sound effortless.",
+      "I can talk normally once the conversation has kindly started itself.",
+      "I wish real life came with a suggested opener button.",
+      "This feels like a loading screen for social interaction.",
+      "Everyone looks normal until you remember everyone is improvising.",
+      "Public life is mostly people politely not mentioning the awkward parts.",
+      "I like tiny moments where strangers briefly become a team.",
+      "The best stranger conversations have no pressure to become anything.",
+      "A shared inconvenience is society’s oldest group chat.",
+      "Nothing connects people faster than something being mildly unclear.",
+      "Mild confusion is underrated social glue.",
+      "I respect any situation where people choose to laugh instead of complain.",
+      "The difference between awkward and funny is sometimes one person smiling first.",
+      "Most awkwardness is just friendliness without a script.",
+      "Normal people are probably also overthinking this. That is my theory.",
+      "I am trying a new thing where I act like I know how public life works.",
+      "This is going well, depending on how generously we define ‘well.’",
+      "I have chosen calm as my public personality today. Results may vary.",
+      "Some days you are the main character. Some days you are background person number four.",
+      "Today I am giving strong friendly background character energy.",
+      "Everyone deserves one easy conversation with a stranger per day.",
+      "A tiny chat can make a place feel less like a waiting room.",
+      "It is nice when the day remembers to include one human moment.",
+      "Sometimes the smallest conversation is enough to make the world feel less locked.",
+      "This is exactly the kind of moment that needs one harmless sentence.",
+      "I am doing my best impression of a person who knows what is happening.",
+      "There should be a loyalty card for successfully surviving small awkward moments.",
+      "Real life would be easier if it came with patch notes.",
+      "I trust anyone who can laugh at a mildly confusing situation.",
+      "This moment has the energy of a group project nobody joined on purpose.",
+      "We are all just trying to look normal in slightly strange lighting."
+    ]
+  }
+];
+
+    function buildStarters() {
+      const starters = [];
+      batchBlueprints.forEach((batch) => {
+        batch.lines.slice(0, batch.count).forEach((line, index) => {
+          starters.push({
+            category: batch.name,
+            line,
+            where: batch.where,
+            why: batch.why,
+            follow: batch.followups[index % batch.followups.length]
+          });
+        });
+      });
+      return starters;
+    }
+
+    const starters = buildStarters();
+    let currentOffset = 0;
+
+    function getDayOfYear(date) {
+      const start = new Date(date.getFullYear(), 0, 0);
+      const diff = date - start;
+      const oneDay = 1000 * 60 * 60 * 24;
+      return Math.floor(diff / oneDay);
+    }
+
+    function getCurrentDate() {
+      const date = new Date();
+      date.setDate(date.getDate() + currentOffset);
+      return date;
+    }
+
+    function getStarterIndex(date) {
+      const day = getDayOfYear(date);
+      return (day - 1) % starters.length;
+    }
+
+    function formatDate(date) {
+      return date.toLocaleDateString(undefined, {
+        weekday: "long",
+        month: "long",
+        day: "numeric"
+      });
+    }
+
+    function renderStarter() {
+      const date = getCurrentDate();
+      const index = getStarterIndex(date);
+      const starter = starters[index];
+      const favoriteKey = `say-this-today-favorite-${index}`;
+      const isSaved = localStorage.getItem(favoriteKey) === "true";
+
+      document.getElementById("dateText").textContent = `${formatDate(date)} · Day ${index + 1} of ${starters.length}`;
+      document.getElementById("categoryText").textContent = starter.category;
+      document.getElementById("starterText").textContent = `“${starter.line}”`;
+      document.getElementById("whereText").textContent = starter.where;
+      document.getElementById("whyText").textContent = starter.why;
+      document.getElementById("followText").textContent = starter.follow;
+      document.getElementById("favoriteBtn").textContent = isSaved ? "Saved ✓" : "Save favourite";
+    }
+
+    async function copyStarter() {
+      const date = getCurrentDate();
+      const starter = starters[getStarterIndex(date)];
+
+      try {
+        await navigator.clipboard.writeText(starter.line);
+        showToast("Copied");
+      } catch (error) {
+        showToast("Could not copy automatically");
+      }
+    }
+
+    function toggleFavorite() {
+      const date = getCurrentDate();
+      const index = getStarterIndex(date);
+      const favoriteKey = `say-this-today-favorite-${index}`;
+      const isSaved = localStorage.getItem(favoriteKey) === "true";
+      localStorage.setItem(favoriteKey, isSaved ? "false" : "true");
+      renderStarter();
+      showToast(isSaved ? "Removed from favourites" : "Saved");
+    }
+
+    function changeDay(amount) {
+      currentOffset += amount;
+      renderStarter();
+    }
+
+    function goToday() {
+      currentOffset = 0;
+      renderStarter();
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById("toast");
+      toast.textContent = message;
+      toast.classList.add("show");
+      window.clearTimeout(showToast.timer);
+      showToast.timer = window.setTimeout(() => {
+        toast.classList.remove("show");
+      }, 1500);
+    }
+
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./sw.js").catch(() => {});
+      });
+    }
+
+    renderStarter();
+  </script>
+</body>
+</html>
