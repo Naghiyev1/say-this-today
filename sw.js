@@ -1,4 +1,4 @@
-const CACHE_NAME = "say-this-today-v1";
+const CACHE_NAME = "say-this-today-v2";
 const FILES_TO_CACHE = [
   "./",
   "./index.html",
