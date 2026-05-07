@@ -1,8 +1,13 @@
-# Say This Today v2
+# Say This Today v3
 
 A tiny installable daily conversation starter app.
 
-## What is new in v2
+## What is new in v3
+
+- Fixed Browse category buttons.
+- Category filtering now uses safe data attributes instead of fragile inline onclick values.
+
+## What was new in v2
 
 - Today view: one daily line.
 - Browse view: choose categories and browse all 365 lines.
