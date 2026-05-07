@@ -19,18 +19,18 @@
     :root {
       --bg: #f7f1e8;
       --bg-2: #efe4d3;
-      --card: rgba(255, 250, 242, 0.9);
+      --card: rgba(255, 250, 242, 0.92);
       --text: #1e1e1e;
       --muted: #665f57;
       --accent: #234898;
       --accent-2: #20aae3;
+      --orange: #e63d22;
       --border: rgba(30, 30, 30, 0.1);
       --shadow: 0 24px 70px rgba(31, 31, 31, 0.12);
       --radius: 32px;
     }
 
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
     html { scroll-behavior: smooth; }
 
     body {
@@ -44,18 +44,17 @@
         radial-gradient(circle at 90% 12%, rgba(230, 61, 34, 0.13), transparent 24%),
         radial-gradient(circle at 60% 100%, rgba(35, 72, 152, 0.18), transparent 36%),
         linear-gradient(135deg, var(--bg), var(--bg-2));
-      display: grid;
-      place-items: center;
       padding: max(18px, env(safe-area-inset-top)) 18px max(18px, env(safe-area-inset-bottom));
     }
 
     .page {
-      width: min(920px, 100%);
+      width: min(960px, 100%);
+      margin: 0 auto;
     }
 
     .hero {
       text-align: center;
-      margin: 0 auto 24px;
+      margin: 8px auto 22px;
       max-width: 760px;
     }
 
@@ -90,6 +89,31 @@
       line-height: 1.5;
     }
 
+    .tabs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin: 0 auto 16px;
+      max-width: 680px;
+    }
+
+    .tab {
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.48);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 13px 12px;
+      font-size: 14px;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .tab.active {
+      background: var(--accent);
+      color: white;
+      box-shadow: 0 12px 26px rgba(35,72,152,.2);
+    }
+
     .card {
       position: relative;
       overflow: hidden;
@@ -113,12 +137,15 @@
 
     .card > * { position: relative; }
 
+    .panel { display: none; }
+    .panel.active { display: block; }
+
     .top-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
       gap: 16px;
-      margin-bottom: 25px;
+      margin-bottom: 22px;
     }
 
     .date {
@@ -223,6 +250,83 @@
       font-size: 14px;
     }
 
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .filter {
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.48);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 10px 12px;
+      font-size: 13px;
+      font-weight: 850;
+      cursor: pointer;
+    }
+
+    .filter.active {
+      background: rgba(35,72,152,.1);
+      color: var(--accent);
+      border-color: rgba(35,72,152,.25);
+    }
+
+    .list {
+      display: grid;
+      gap: 12px;
+      max-height: 62vh;
+      overflow: auto;
+      padding-right: 2px;
+    }
+
+    .mini-card {
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 16px;
+      background: rgba(255,255,255,.42);
+    }
+
+    .mini-line {
+      margin: 0 0 10px;
+      font-size: 18px;
+      line-height: 1.35;
+      font-weight: 850;
+      letter-spacing: -0.02em;
+    }
+
+    .mini-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .mini-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+
+    .mini-actions button {
+      padding: 10px 12px;
+      font-size: 13px;
+      border-radius: 999px;
+    }
+
+    .empty {
+      text-align: center;
+      color: var(--muted);
+      padding: 40px 16px;
+      line-height: 1.55;
+    }
+
     .install-tip {
       display: none;
       margin-top: 18px;
@@ -263,12 +367,13 @@
     }
 
     @media (max-width: 760px) {
-      body { align-items: start; }
       .hero { margin-top: 10px; }
+      .tabs { grid-template-columns: 1fr; }
       .top-row { align-items: flex-start; flex-direction: column; }
       .details { grid-template-columns: 1fr; gap: 20px; }
       .actions { grid-template-columns: 1fr; }
       .install-tip { display: block; }
+      .list { max-height: none; overflow: visible; }
     }
   </style>
 </head>
@@ -280,38 +385,63 @@
       <p class="tagline">For people who like people, but never know how to start.</p>
     </header>
 
-    <section class="card" aria-live="polite">
-      <div class="top-row">
-        <div class="date" id="dateText">Today</div>
-        <div class="pill" id="categoryText">Daily opener</div>
+    <nav class="tabs" aria-label="App sections">
+      <button class="tab active" id="tabDaily" type="button" onclick="showPanel('daily')">Today</button>
+      <button class="tab" id="tabBrowse" type="button" onclick="showPanel('browse')">Browse</button>
+      <button class="tab" id="tabFavorites" type="button" onclick="showPanel('favorites')">Favourites</button>
+    </nav>
+
+    <section class="card">
+      <div class="panel active" id="panelDaily">
+        <div class="top-row">
+          <div class="date" id="dateText">Today</div>
+          <div class="pill" id="categoryText">Daily opener</div>
+        </div>
+
+        <p class="line" id="starterText">Loading...</p>
+
+        <div class="details">
+          <div class="detail">
+            <div class="label">Where to use it</div>
+            <p id="whereText"></p>
+          </div>
+          <div class="detail">
+            <div class="label">Why it works</div>
+            <p id="whyText"></p>
+          </div>
+          <div class="detail">
+            <div class="label">Easy follow-up</div>
+            <p id="followText"></p>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="primary" type="button" onclick="copyStarter()">Copy today’s line</button>
+          <button class="secondary" type="button" onclick="toggleFavorite()" id="favoriteBtn">Save favourite</button>
+        </div>
+
+        <div class="nav">
+          <button type="button" onclick="changeDay(-1)">← Yesterday</button>
+          <button type="button" onclick="goToday()">Today</button>
+          <button type="button" onclick="changeDay(1)">Tomorrow →</button>
+        </div>
       </div>
 
-      <p class="line" id="starterText">Loading...</p>
-
-      <div class="details">
-        <div class="detail">
-          <div class="label">Where to use it</div>
-          <p id="whereText"></p>
+      <div class="panel" id="panelBrowse">
+        <div class="top-row">
+          <div class="date">Browse by category</div>
+          <div class="pill" id="browseCount">365 lines</div>
         </div>
-        <div class="detail">
-          <div class="label">Why it works</div>
-          <p id="whyText"></p>
-        </div>
-        <div class="detail">
-          <div class="label">Easy follow-up</div>
-          <p id="followText"></p>
-        </div>
+        <div class="filters" id="categoryFilters"></div>
+        <div class="list" id="browseList"></div>
       </div>
 
-      <div class="actions">
-        <button class="primary" type="button" onclick="copyStarter()">Copy today’s line</button>
-        <button class="secondary" type="button" onclick="toggleFavorite()" id="favoriteBtn">Save favourite</button>
-      </div>
-
-      <div class="nav">
-        <button type="button" onclick="changeDay(-1)">← Yesterday</button>
-        <button type="button" onclick="goToday()">Today</button>
-        <button type="button" onclick="changeDay(1)">Tomorrow →</button>
+      <div class="panel" id="panelFavorites">
+        <div class="top-row">
+          <div class="date">Your saved lines</div>
+          <div class="pill" id="favoritesCount">0 saved</div>
+        </div>
+        <div class="list" id="favoritesList"></div>
       </div>
 
       <div class="install-tip">
@@ -807,6 +937,7 @@
       batchBlueprints.forEach((batch) => {
         batch.lines.slice(0, batch.count).forEach((line, index) => {
           starters.push({
+            id: starters.length,
             category: batch.name,
             line,
             where: batch.where,
@@ -819,7 +950,21 @@
     }
 
     const starters = buildStarters();
+    const categoryNames = ["All", ...new Set(starters.map(item => item.category))];
     let currentOffset = 0;
+    let activeCategory = "All";
+
+    function getFavoriteKey(index) {
+      return `say-this-today-favorite-${index}`;
+    }
+
+    function isFavorite(index) {
+      return localStorage.getItem(getFavoriteKey(index)) === "true";
+    }
+
+    function setFavorite(index, value) {
+      localStorage.setItem(getFavoriteKey(index), value ? "true" : "false");
+    }
 
     function getDayOfYear(date) {
       const start = new Date(date.getFullYear(), 0, 0);
@@ -851,8 +996,6 @@
       const date = getCurrentDate();
       const index = getStarterIndex(date);
       const starter = starters[index];
-      const favoriteKey = `say-this-today-favorite-${index}`;
-      const isSaved = localStorage.getItem(favoriteKey) === "true";
 
       document.getElementById("dateText").textContent = `${formatDate(date)} · Day ${index + 1} of ${starters.length}`;
       document.getElementById("categoryText").textContent = starter.category;
@@ -860,29 +1003,41 @@
       document.getElementById("whereText").textContent = starter.where;
       document.getElementById("whyText").textContent = starter.why;
       document.getElementById("followText").textContent = starter.follow;
-      document.getElementById("favoriteBtn").textContent = isSaved ? "Saved ✓" : "Save favourite";
+      document.getElementById("favoriteBtn").textContent = isFavorite(index) ? "Saved ✓" : "Save favourite";
     }
 
-    async function copyStarter() {
-      const date = getCurrentDate();
-      const starter = starters[getStarterIndex(date)];
-
+    async function copyText(text) {
       try {
-        await navigator.clipboard.writeText(starter.line);
+        await navigator.clipboard.writeText(text);
         showToast("Copied");
       } catch (error) {
         showToast("Could not copy automatically");
       }
     }
 
-    function toggleFavorite() {
+    function copyStarter() {
       const date = getCurrentDate();
-      const index = getStarterIndex(date);
-      const favoriteKey = `say-this-today-favorite-${index}`;
-      const isSaved = localStorage.getItem(favoriteKey) === "true";
-      localStorage.setItem(favoriteKey, isSaved ? "false" : "true");
+      const starter = starters[getStarterIndex(date)];
+      copyText(starter.line);
+    }
+
+    function toggleFavorite() {
+      const index = getStarterIndex(getCurrentDate());
+      const next = !isFavorite(index);
+      setFavorite(index, next);
       renderStarter();
-      showToast(isSaved ? "Removed from favourites" : "Saved");
+      renderFavorites();
+      renderBrowse();
+      showToast(next ? "Saved to favourites" : "Removed from favourites");
+    }
+
+    function toggleFavoriteById(index) {
+      const next = !isFavorite(index);
+      setFavorite(index, next);
+      renderStarter();
+      renderFavorites();
+      renderBrowse();
+      showToast(next ? "Saved to favourites" : "Removed from favourites");
     }
 
     function changeDay(amount) {
@@ -893,6 +1048,92 @@
     function goToday() {
       currentOffset = 0;
       renderStarter();
+    }
+
+    function showPanel(name) {
+      ["daily", "browse", "favorites"].forEach(panel => {
+        document.getElementById(`panel${capitalise(panel)}`).classList.toggle("active", panel === name);
+        document.getElementById(`tab${capitalise(panel)}`).classList.toggle("active", panel === name);
+      });
+
+      if (name === "browse") renderBrowse();
+      if (name === "favorites") renderFavorites();
+    }
+
+    function capitalise(value) {
+      return value.charAt(0).toUpperCase() + value.slice(1);
+    }
+
+    function renderCategoryFilters() {
+      const container = document.getElementById("categoryFilters");
+      container.innerHTML = categoryNames.map(category => `
+        <button
+          type="button"
+          class="filter ${category === activeCategory ? "active" : ""}"
+          onclick="setCategory(${JSON.stringify(category)})"
+        >${escapeHtml(category)}</button>
+      `).join("");
+    }
+
+    function setCategory(category) {
+      activeCategory = category;
+      renderBrowse();
+    }
+
+    function renderBrowse() {
+      renderCategoryFilters();
+      const list = document.getElementById("browseList");
+      const filtered = activeCategory === "All"
+        ? starters
+        : starters.filter(item => item.category === activeCategory);
+
+      document.getElementById("browseCount").textContent = `${filtered.length} line${filtered.length === 1 ? "" : "s"}`;
+      list.innerHTML = filtered.map(item => renderMiniCard(item)).join("");
+    }
+
+    function renderFavorites() {
+      const saved = starters.filter(item => isFavorite(item.id));
+      const list = document.getElementById("favoritesList");
+
+      document.getElementById("favoritesCount").textContent = `${saved.length} saved`;
+
+      if (!saved.length) {
+        list.innerHTML = `
+          <div class="empty">
+            You have not saved anything yet.<br>
+            Tap <strong>Save favourite</strong> on any line you want to keep.
+          </div>
+        `;
+        return;
+      }
+
+      list.innerHTML = saved.map(item => renderMiniCard(item)).join("");
+    }
+
+    function renderMiniCard(item) {
+      const saved = isFavorite(item.id);
+      return `
+        <article class="mini-card">
+          <p class="mini-line">“${escapeHtml(item.line)}”</p>
+          <div class="mini-meta">
+            <span>${escapeHtml(item.category)}</span>
+            <span>Day ${item.id + 1}</span>
+          </div>
+          <div class="mini-actions">
+            <button class="primary" type="button" onclick="copyText(${JSON.stringify(item.line)})">Copy</button>
+            <button class="secondary" type="button" onclick="toggleFavoriteById(${item.id})">${saved ? "Saved ✓" : "Save"}</button>
+          </div>
+        </article>
+      `;
+    }
+
+    function escapeHtml(text) {
+      return String(text)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
     }
 
     function showToast(message) {
@@ -912,6 +1153,7 @@
     }
 
     renderStarter();
+    renderCategoryFilters();
   </script>
 </body>
 </html>
