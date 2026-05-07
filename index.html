@@ -1066,13 +1066,20 @@
 
     function renderCategoryFilters() {
       const container = document.getElementById("categoryFilters");
+
       container.innerHTML = categoryNames.map(category => `
         <button
           type="button"
           class="filter ${category === activeCategory ? "active" : ""}"
-          onclick="setCategory(${JSON.stringify(category)})"
+          data-category="${escapeHtml(category)}"
         >${escapeHtml(category)}</button>
       `).join("");
+
+      container.querySelectorAll(".filter").forEach(button => {
+        button.addEventListener("click", () => {
+          setCategory(button.dataset.category);
+        });
+      });
     }
 
     function setCategory(category) {
