@@ -433,6 +433,7 @@
           <div class="pill" id="browseCount">365 lines</div>
         </div>
         <div class="filters" id="categoryFilters"></div>
+        <div class="date" id="selectedCategoryText" style="margin-bottom: 14px;">Showing all categories</div>
         <div class="list" id="browseList"></div>
       </div>
 
@@ -1074,12 +1075,6 @@
           data-category="${escapeHtml(category)}"
         >${escapeHtml(category)}</button>
       `).join("");
-
-      container.querySelectorAll(".filter").forEach(button => {
-        button.addEventListener("click", () => {
-          setCategory(button.dataset.category);
-        });
-      });
     }
 
     function setCategory(category) {
@@ -1095,6 +1090,9 @@
         : starters.filter(item => item.category === activeCategory);
 
       document.getElementById("browseCount").textContent = `${filtered.length} line${filtered.length === 1 ? "" : "s"}`;
+      document.getElementById("selectedCategoryText").textContent = activeCategory === "All"
+        ? "Showing all categories"
+        : `Showing: ${activeCategory}`;
       list.innerHTML = filtered.map(item => renderMiniCard(item)).join("");
     }
 
@@ -1152,6 +1150,12 @@
         toast.classList.remove("show");
       }, 1500);
     }
+
+    document.getElementById("categoryFilters").addEventListener("click", (event) => {
+      const button = event.target.closest(".filter");
+      if (!button) return;
+      setCategory(button.dataset.category);
+    });
 
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => {
